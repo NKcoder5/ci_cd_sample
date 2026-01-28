@@ -1,0 +1,8 @@
+{
+  "name": "sample-node-ci",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  }
+}
