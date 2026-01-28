@@ -15,27 +15,27 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                sh 'npm install'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'npm test'
+                sh 'npm test'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat "docker build -t ${env.DOCKER_IMAGE}:latest ."
+                sh "docker build -t ${env.DOCKER_IMAGE}:latest ."
             }
         }
 
         stage('Docker Login & Push') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-pass', variable: 'PASS')]) {
-                    bat "echo ${env.PASS} | docker login -u nkcoder5 --password-stdin"
-                    bat "docker push ${env.DOCKER_IMAGE}:latest"
+                    sh "echo ${env.PASS} | docker login -u nkcoder5 --password-stdin"
+                    sh "docker push ${env.DOCKER_IMAGE}:latest"
                 }
             }
         }
