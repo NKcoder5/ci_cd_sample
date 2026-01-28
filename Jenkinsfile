@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/NKcoder5/ci_cd_sample.git'
+                git branch: 'main', url: 'https://github.com/NKcoder5/ci_cd_sample.git'
             }
         }
 
@@ -27,15 +27,15 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat "docker build -t %DOCKER_IMAGE%:latest ."
+                bat "docker build -t ${env.DOCKER_IMAGE}:latest ."
             }
         }
 
         stage('Docker Login & Push') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-pass', variable: 'PASS')]) {
-                    bat "echo %PASS% | docker login -u nkcoder5 --password-stdin"
-                    bat "docker push %DOCKER_IMAGE%:latest"
+                    bat "echo ${env.PASS} | docker login -u nkcoder5 --password-stdin"
+                    bat "docker push ${env.DOCKER_IMAGE}:latest"
                 }
             }
         }
@@ -43,10 +43,10 @@ pipeline {
 
     post {
         success {
-            slackSend channel: '#ci-cd', message: '✔ Jenkins Build Success 🚀'
+            slackSend(channel: '#ci-cd', tokenCredentialId: 'slack-token', message: '✔ Jenkins Build Success 🚀')
         }
         failure {
-            slackSend channel: '#ci-cd', message: '❌ Jenkins Build Failed'
+            slackSend(channel: '#ci-cd', tokenCredentialId: 'slack-token', message: '❌ Jenkins Build Failed')
         }
     }
 }
