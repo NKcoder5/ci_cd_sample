@@ -5,6 +5,11 @@ pipeline {
         DOCKER_IMAGE = "nkcoder5/sample-node-ci"
     }
 
+    tools {
+        // If you have NodeJS Plugin configured in Jenkins, you can uncomment this:
+        // nodejs 'node-20'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -15,6 +20,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
+                // Linux shell command
                 sh 'npm install'
             }
         }
@@ -43,6 +49,7 @@ pipeline {
 
     post {
         success {
+            // Make sure you have a Slack Secret Text credential with ID 'slack-token'
             slackSend(channel: '#ci-cd', tokenCredentialId: 'slack-token', message: '✔ Jenkins Build Success 🚀')
         }
         failure {
