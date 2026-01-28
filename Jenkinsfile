@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20'      // Node 20 official Docker image
+            args '-u root:root'  // Run as root so npm install works
+        }
+    }
 
     environment {
         DOCKER_IMAGE = "nkcoder5/sample-node-ci"
@@ -9,7 +14,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/NKcoder5/ci_cd_sample.git'
+                git url: 'https://github.com/NKcoder5/ci_cd_sample.git', branch: 'main'
             }
         }
 
@@ -27,15 +32,15 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh "docker build -t ${env.DOCKER_IMAGE}:latest ."
+                sh "docker build -t $DOCKER_IMAGE:latest ."
             }
         }
 
         stage('Docker Login & Push') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-pass', variable: 'PASS')]) {
-                    sh "echo ${env.PASS} | docker login -u nkcoder5 --password-stdin"
-                    sh "docker push ${env.DOCKER_IMAGE}:latest"
+                    sh "echo $PASS | docker login -u nkcoder5 --password-stdin"
+                    sh "docker push $DOCKER_IMAGE:latest"
                 }
             }
         }
@@ -43,10 +48,10 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#ci-cd', tokenCredentialId: 'slack-token', message: '✔ Jenkins Build Success 🚀')
+            echo '✔ Build Successful!'
         }
         failure {
-            slackSend(channel: '#ci-cd', tokenCredentialId: 'slack-token', message: '❌ Jenkins Build Failed')
+            echo '❌ Build Failed!'
         }
     }
 }
